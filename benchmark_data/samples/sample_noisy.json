@@ -1,0 +1,16 @@
+{
+  "language": "Python",
+  "task": "Inspect a small benchmark with variance but no clear regression.",
+  "code": "def transform(xs):\n    return [x * 2 for x in xs]",
+  "n": [500, 1000, 2000, 4000],
+  "runtime_a": [1.9, 3.8, 7.4, 15.1],
+  "runtime_b": [2.0, 4.1, 7.5, 15.5],
+  "memory_a": [2.4, 2.6, 2.8, 3.2],
+  "memory_b": [2.4, 2.7, 2.9, 3.3],
+  "fit": {
+    "a_best_fit": "O(n)",
+    "a_confidence": 0.88,
+    "b_best_fit": "O(n)",
+    "b_confidence": 0.84
+  }
+}

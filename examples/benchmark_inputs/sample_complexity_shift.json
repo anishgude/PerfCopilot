@@ -1,0 +1,16 @@
+{
+  "language": "Python",
+  "task": "Detect whether a new nested lookup accidentally changed scaling.",
+  "code": "def pair_matches(xs, ys):\n    out = []\n    for x in xs:\n        if x in ys:\n            out.append(x)\n    return out",
+  "n": [1000, 2000, 4000, 8000],
+  "runtime_a": [4.8, 9.2, 18.4, 36.7],
+  "runtime_b": [6.7, 18.3, 57.8, 210.5],
+  "memory_a": [6.0, 6.1, 6.3, 6.5],
+  "memory_b": [6.4, 7.0, 8.1, 10.9],
+  "fit": {
+    "a_best_fit": "O(n)",
+    "a_confidence": 0.91,
+    "b_best_fit": "O(n^2)",
+    "b_confidence": 0.87
+  }
+}

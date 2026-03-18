@@ -1,0 +1,199 @@
+name: Perf Bot
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  analyze-benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Generate PR summary
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ secrets.OPENAI_MODEL }}
+          BENCHMARK_PATH: benchmark_data/historical/latest.json
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import pathlib
+          import urllib.error
+          import urllib.request
+
+          benchmark_path = pathlib.Path(os.environ["BENCHMARK_PATH"])
+          payload = json.loads(benchmark_path.read_text(encoding="utf-8"))
+
+          def percent_delta(old, new):
+              if old == 0:
+                  return None
+              return round(((new - old) / old) * 100.0, 2)
+
+          runtime_a = payload["runtime_a"]
+          runtime_b = payload.get("runtime_b") or []
+          n_values = payload["n"]
+          max_idx = len(n_values) - 1
+          mid_idx = len(n_values) // 2
+          slowdown_max = percent_delta(runtime_a[max_idx], runtime_b[max_idx]) if runtime_b else None
+          slowdown_mid = percent_delta(runtime_a[mid_idx], runtime_b[mid_idx]) if runtime_b else None
+
+          prompt = "\n".join(
+              [
+                  "You are Perf Copilot, a performance analysis assistant.",
+                  "Return these exact sections:",
+                  "Summary:",
+                  "Best-fit complexity:",
+                  "Regression bullets:",
+                  "Likely cause(s):",
+                  "Evidence:",
+                  "Optimization direction:",
+                  "Risk/edge cases:",
+                  "",
+                  f"Language: {payload['language']}",
+                  f"Task: {payload['task']}",
+                  "Code:",
+                  payload["code"],
+                  "",
+                  "Benchmark A:",
+                  f"Input sizes (n): {payload['n']}",
+                  f"Runtime A: {payload['runtime_a']}",
+                  f"Memory A: {payload.get('memory_a', 'N/A')}",
+                  "",
+                  "Benchmark B:",
+                  f"Runtime B: {payload.get('runtime_b', 'N/A')}",
+                  f"Memory B: {payload.get('memory_b', 'N/A')}",
+                  "",
+                  "Fit:",
+                  f"A best fit: {payload['fit']['a_best_fit']} ({payload['fit']['a_confidence']})",
+                  f"B best fit: {payload['fit'].get('b_best_fit', 'Unknown')} ({payload['fit'].get('b_confidence', 0)})",
+              ]
+          )
+
+          model_text = ""
+          api_key = os.getenv("OPENAI_API_KEY")
+          model = os.getenv("OPENAI_MODEL")
+          if api_key and model:
+              request = urllib.request.Request(
+                  "https://api.openai.com/v1/chat/completions",
+                  headers={
+                      "Authorization": f"Bearer {api_key}",
+                      "Content-Type": "application/json",
+                  },
+                  data=json.dumps(
+                      {
+                          "model": model,
+                          "messages": [
+                              {
+                                  "role": "system",
+                                  "content": "You analyze benchmark regressions and suggest practical fixes.",
+                              },
+                              {"role": "user", "content": prompt},
+                          ],
+                          "temperature": 0.1,
+                      }
+                  ).encode("utf-8"),
+                  method="POST",
+              )
+              try:
+                  with urllib.request.urlopen(request, timeout=30) as response:
+                      data = json.loads(response.read().decode("utf-8"))
+                  model_text = data["choices"][0]["message"]["content"].strip()
+              except (urllib.error.URLError, KeyError, IndexError, TypeError):
+                  model_text = ""
+
+          if not model_text:
+              model_text = "\n".join(
+                  [
+                      "Summary:",
+                      "OpenAI analysis was skipped or failed; showing deterministic benchmark summary only.",
+                      "Best-fit complexity:",
+                      f"A: {payload['fit']['a_best_fit']}; B: {payload['fit'].get('b_best_fit', 'Unknown')}",
+                      "Regression bullets:",
+                      f"- Midpoint slowdown: {slowdown_mid if slowdown_mid is not None else 'N/A'}%",
+                      f"- Max slowdown: {slowdown_max if slowdown_max is not None else 'N/A'}%",
+                      "Likely cause(s):",
+                      "- Additional per-item work or allocations in benchmark B.",
+                      "- A potential scaling change at larger input sizes.",
+                      "Evidence:",
+                      f"- Runtime A: {runtime_a}",
+                      f"- Runtime B: {runtime_b if runtime_b else 'N/A'}",
+                      "Optimization direction:",
+                      "- Profile the hottest loop and remove repeated work.",
+                      "- Precompute lookups or reuse buffers.",
+                      "Risk/edge cases:",
+                      "- Secrets are unavailable on forked pull requests; comments may be heuristic-only.",
+                  ]
+              )
+
+          def get_section(title):
+              marker = f"{title}:"
+              start = model_text.find(marker)
+              if start == -1:
+                  return []
+              start = start + len(marker)
+              next_positions = []
+              for other in [
+                  "Summary",
+                  "Best-fit complexity",
+                  "Regression bullets",
+                  "Likely cause(s)",
+                  "Evidence",
+                  "Optimization direction",
+                  "Risk/edge cases",
+              ]:
+                  other_marker = f"{other}:"
+                  position = model_text.find(other_marker, start)
+                  if position != -1:
+                      next_positions.append(position)
+              end = min(next_positions) if next_positions else len(model_text)
+              lines = [line.strip(" -*") for line in model_text[start:end].strip().splitlines() if line.strip()]
+              return lines
+
+          causes = get_section("Likely cause(s)")[:3]
+          fixes = get_section("Optimization direction")[:3]
+
+          lines = [
+              "## Perf Copilot Summary",
+              "",
+              f"- Slowdown at max n: {slowdown_max if slowdown_max is not None else 'N/A'}%",
+              f"- Slowdown at mid n: {slowdown_mid if slowdown_mid is not None else 'N/A'}%",
+              f"- Complexity A: {payload['fit']['a_best_fit']}",
+              f"- Complexity B: {payload['fit'].get('b_best_fit', 'Unknown')}",
+              "",
+              "### Top causes",
+          ]
+          lines.extend([f"- {item}" for item in (causes or ["No cause extracted."])])
+          lines.append("")
+          lines.append("### Top fixes")
+          lines.extend([f"- {item}" for item in (fixes or ["No fix extracted."])])
+          lines.append("")
+          lines.append("<details><summary>Raw model diagnosis</summary>")
+          lines.append("")
+          lines.append(model_text)
+          lines.append("")
+          lines.append("</details>")
+
+          pathlib.Path(".perf-pr-comment.md").write_text("\n".join(lines), encoding="utf-8")
+          PY
+
+      - name: Post PR comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+            const body = fs.readFileSync(".perf-pr-comment.md", "utf8");
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });

@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#f4efe6" />
+  <rect x="60" y="60" width="1160" height="600" rx="36" fill="#ffffff" stroke="#d7d1c8" />
+  <rect x="110" y="110" width="540" height="140" rx="24" fill="#d8efe9" />
+  <rect x="690" y="110" width="480" height="140" rx="24" fill="#fde7d9" />
+  <rect x="110" y="290" width="510" height="300" rx="24" fill="#f8fafc" stroke="#cbd5e1" />
+  <rect x="660" y="290" width="510" height="300" rx="24" fill="#f8fafc" stroke="#cbd5e1" />
+  <text x="130" y="170" font-family="Arial, sans-serif" font-size="36" fill="#0d1b1e">Dashboard Screenshot Placeholder</text>
+  <text x="130" y="210" font-family="Arial, sans-serif" font-size="22" fill="#4b5c60">Run the app and replace this file with a real capture.</text>
+</svg>

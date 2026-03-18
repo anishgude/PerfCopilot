@@ -1,0 +1,34 @@
+{
+  "source_benchmark": "benchmark_data/samples/sample_regression.json",
+  "notes": "Representative output captured from a local PerfCopilot analysis run.",
+  "computed": {
+    "slowdown_at_mid_pct": 31.47,
+    "slowdown_at_max_pct": 38.66,
+    "memory_growth_at_max_pct": 44.56,
+    "max_n": 20000,
+    "mid_n": 10000
+  },
+  "parsed": {
+    "summary": "Version B is materially slower at larger input sizes while preserving the same O(n) scaling class.",
+    "best_fit_complexity": "A best fit: O(n) (0.94) B best fit: O(n) (0.90)",
+    "regression_bullets": [
+      "38.66% slowdown at the largest measured input.",
+      "Memory growth increased alongside runtime growth, suggesting allocation overhead."
+    ],
+    "likely_causes": [
+      "Higher per-record serialization work after the refactor.",
+      "Additional transient allocations in the hot loop."
+    ],
+    "evidence": [
+      "Runtime delta widens as input size increases.",
+      "Memory B climbs from 15.0 to 42.5 across the sample set."
+    ],
+    "optimization_direction": [
+      "Reduce repeated object creation in the serialization path.",
+      "Precompute or reuse structures where safe."
+    ],
+    "risks": [
+      "Microbenchmark noise can hide small wins at low n."
+    ]
+  }
+}

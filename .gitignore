@@ -1,0 +1,15 @@
+.next
+__pycache__
+.pytest_cache
+.ruff_cache
+.venv
+node_modules
+.env
+**/.env
+**/.env.local
+**/.env.*
+*.log
+*.egg-info
+perf_copilot.db
+dist
+coverage

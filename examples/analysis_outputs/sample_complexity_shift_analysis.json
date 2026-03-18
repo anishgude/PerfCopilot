@@ -1,0 +1,32 @@
+{
+  "source_benchmark": "benchmark_data/samples/sample_complexity_shift.json",
+  "notes": "Representative output captured from a local PerfCopilot analysis run.",
+  "computed": {
+    "slowdown_at_mid_pct": 214.13,
+    "slowdown_at_max_pct": 473.57,
+    "memory_growth_at_max_pct": 67.69,
+    "max_n": 8000,
+    "mid_n": 4000
+  },
+  "parsed": {
+    "summary": "Version B is 473.5% slower at the largest n and the observed scaling shifts from O(n) toward O(n^2).",
+    "best_fit_complexity": "A best fit: O(n) (0.91) B best fit: O(n^2) (0.87)",
+    "regression_bullets": [
+      "473.5% slowdown at largest n.",
+      "214.1% slowdown at n=4000.",
+      "Curve shape indicates a likely complexity class regression."
+    ],
+    "likely_causes": [
+      "Nested membership checks behaving like repeated scans."
+    ],
+    "evidence": [
+      "Runtime growth diverges sharply while memory growth remains secondary."
+    ],
+    "optimization_direction": [
+      "Replace repeated linear membership checks with a hash-based structure."
+    ],
+    "risks": [
+      "Hash-based optimizations trade memory for speed and depend on stable equality semantics."
+    ]
+  }
+}

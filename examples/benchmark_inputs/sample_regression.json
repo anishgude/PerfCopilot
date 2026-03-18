@@ -1,0 +1,16 @@
+{
+  "language": "Python",
+  "task": "Compare two JSON serialization implementations after a refactor.",
+  "code": "def serialize(rows):\n    out = []\n    for row in rows:\n        out.append({k: str(v) for k, v in row.items()})\n    return out",
+  "n": [1000, 5000, 10000, 20000],
+  "runtime_a": [8.2, 39.7, 80.4, 163.2],
+  "runtime_b": [9.1, 49.4, 105.7, 226.3],
+  "memory_a": [14.1, 17.2, 21.6, 29.4],
+  "memory_b": [15.0, 20.8, 28.3, 42.5],
+  "fit": {
+    "a_best_fit": "O(n)",
+    "a_confidence": 0.94,
+    "b_best_fit": "O(n)",
+    "b_confidence": 0.90
+  }
+}

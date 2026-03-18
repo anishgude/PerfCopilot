@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <rect width="1280" height="720" fill="#f4efe6" />
+  <rect x="80" y="80" width="1120" height="560" rx="28" fill="#ffffff" stroke="#d7d1c8" />
+  <text x="120" y="150" font-family="Arial, sans-serif" font-size="34" fill="#0d1b1e">PR Comment Screenshot Placeholder</text>
+  <text x="120" y="200" font-family="Arial, sans-serif" font-size="22" fill="#4b5c60">Use the GitHub Action on a pull request, then capture the rendered comment.</text>
+  <rect x="120" y="250" width="1040" height="60" rx="14" fill="#eef2ff" />
+  <rect x="120" y="340" width="1040" height="60" rx="14" fill="#f0fdf4" />
+  <rect x="120" y="430" width="1040" height="60" rx="14" fill="#fff7ed" />
+</svg>
