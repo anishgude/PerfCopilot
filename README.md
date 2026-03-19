@@ -8,6 +8,8 @@ PerfCopilot is a full-stack developer tool for analyzing benchmark regressions a
 
 PerfCopilot is designed to feel closer to an internal engineering tool than a one-off demo. A user can upload benchmark JSON, persist runs, inspect historical analyses, visualize scaling curves, and review an LLM-generated diagnosis that distinguishes likely constant-factor regressions from potential complexity-class regressions.
 
+![PerfCopilot dashboard overview](examples/dashboard_views/06-history-panel.png)
+
 The project combines:
 
 - benchmark ingestion and validation
