@@ -264,12 +264,39 @@ npm run build
 
 ## Screenshots / Demo
 
-Current visual placeholders are in [`examples/dashboard_views`](/c:/Users/ANISH%20PC/Desktop/performance-analyzer/examples/dashboard_views):
+### Dashboard Overview
 
-- [`examples/dashboard_views/dashboard-placeholder.svg`](/c:/Users/ANISH%20PC/Desktop/performance-analyzer/examples/dashboard_views/dashboard-placeholder.svg)
-- [`examples/dashboard_views/pr-comment-placeholder.svg`](/c:/Users/ANISH%20PC/Desktop/performance-analyzer/examples/dashboard_views/pr-comment-placeholder.svg)
+PerfCopilot supports both upload-driven analysis and an ad hoc manual workflow in the same dashboard.
 
-For applications and portfolio reviews, replacing these placeholders with real screenshots is the highest-leverage polish step left.
+![Dashboard overview upload](examples/dashboard_views/01-dashboard-overview-upload.png)
+
+![Dashboard overview manual analysis](examples/dashboard_views/02-dashboard-overview-manual.png)
+
+### Selected Run
+
+Once a benchmark is analyzed, the dashboard surfaces computed regression metrics, complexity fit metadata, diagnosis details, and scaling visualizations.
+
+![Selected run diagnosis and metrics](examples/dashboard_views/03-selected-run-diagnosis.png)
+
+![Selected run runtime and memory charts](examples/dashboard_views/04-selected-run-charts.png)
+
+### Diagnosis Output
+
+The structured diagnosis section is designed to read like an internal performance review summary rather than a raw model dump.
+
+![Diagnosis panel](examples/dashboard_views/05-diagnosis-panel.png)
+
+### Analysis History
+
+Persisted runs are stored in SQLite and can be revisited from the dashboard history panel.
+
+![History panel](examples/dashboard_views/06-history-panel.png)
+
+### API Surface
+
+The backend exposes a small, focused API for direct analysis, upload-driven persistence, and historical run retrieval.
+
+![API docs](examples/dashboard_views/07-api-docs.png)
 
 ## Future Improvements
 
